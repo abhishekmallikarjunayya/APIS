@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Info App</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Car Info App</h1>
+
+        <h2>Add / Edit Car</h2>
+        <input type="hidden" id="car_id">
+        <input type="text" id="car_name" placeholder="Car Name">
+        <input type="text" id="company_name" placeholder="Company Name">
+        <input type="number" id="price" placeholder="Price">
+        <input type="number" id="mileage" placeholder="Mileage">
+        <button onclick="saveCar()">Save Car</button>
+
+        <h2>Car List</h2>
+        <table id="carTable">
+            <thead>
+                <tr>
+                    <th>ID</th> <th>Car Name</th>
+                    <th>Company</th>
+                    <th>Price</th>
+                    <th>Mileage</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        const apiUrl = "/cars/";
+
+        async function fetchCars() {
+            const res = await fetch(apiUrl);
+            const cars = await res.json();
+            const tbody = document.querySelector("#carTable tbody");
+            tbody.innerHTML = "";
+            
+            // 👇 FIX: Use a counter to display sequential IDs 
+            cars.forEach((car, index) => {
+                const row = `<tr>
+                    <td>${index + 1}</td> <td>${car.car_name}</td>
+                    <td>${car.company_name}</td>
+                    <td>${car.price}</td>
+                    <td>${car.mileage}</td>
+                    <td>
+                        <button onclick="editCar('${car.id}')">Edit</button>
+                        <button onclick="deleteCar('${car.id}')">Delete</button>
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+            // NOTE: You still need the backend fixes (car_helper, models.py json_encoders) 
+            // from the previous response for 'car.id' to be a valid string for the Edit/Delete buttons.
+        }
+
+        async function saveCar() {
+            const carId = document.getElementById("car_id").value;
+            const carData = {
+                car_name: document.getElementById("car_name").value,
+                company_name: document.getElementById("company_name").value,
+                price: parseFloat(document.getElementById("price").value),
+                mileage: parseFloat(document.getElementById("mileage").value)
+            };
+
+            if (carId) {
+                await fetch(apiUrl + carId, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(carData)
+                });
+            } else {
+                await fetch(apiUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(carData)
+                });
+            }
+
+            document.getElementById("car_id").value = "";
+            document.getElementById("car_name").value = "";
+            document.getElementById("company_name").value = "";
+            document.getElementById("price").value = "";
+            document.getElementById("mileage").value = "";
+
+            fetchCars();
+        }
+
+        function editCar(id) {
+            fetch(apiUrl + id)
+                .then(res => res.json())
+                .then(car => {
+                    document.getElementById("car_id").value = car.id;
+                    document.getElementById("car_name").value = car.car_name;
+                    document.getElementById("company_name").value = car.company_name;
+                    document.getElementById("price").value = car.price;
+                    document.getElementById("mileage").value = car.mileage;
+                });
+        }
+
+        async function deleteCar(id) {
+            if (confirm("Are you sure you want to delete this car?")) {
+                await fetch(apiUrl + id, { method: "DELETE" });
+                fetchCars();
+            }
+        }
+
+        fetchCars();
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+    "1": {
+        "name": "laptop",
+        "price": 100000.0,
+        "in_stock": true
+    },
+    "2": {
+        "name": "mobile",
+        "price": 80000.0,
+        "in_stock": true
+    }
+}

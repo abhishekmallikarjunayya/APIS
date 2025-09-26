@@ -1,0 +1,91 @@
+Step-by-Step Summary
+1. Installed PostgreSQL
+
+Installed PostgreSQL on your system (or ensured it’s running on localhost).
+
+Created a database, e.g., mydb.
+
+Created a PostgreSQL user and password.
+
+Example:
+
+CREATE DATABASE mydb;
+CREATE USER username WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE mydb TO username;
+
+2. Created Python virtual environment
+
+Created and activated a virtual environment:
+
+python3 -m venv venv
+source venv/bin/activate
+
+3. Installed required Python packages
+
+FastAPI, Uvicorn, SQLAlchemy, psycopg2, Pydantic:
+
+pip install fastapi uvicorn sqlalchemy psycopg2-binary pydantic
+
+4. Setup database.py for SQLAlchemy
+
+Created SQLAlchemy engine for PostgreSQL:
+
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "postgresql://username:password@localhost:5432/mydb"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+
+Defined ItemDB model with columns id, bucket_name, name, price, in_stock.
+
+Removed SQLite-specific option check_same_thread (caused previous error).
+
+Base.metadata.create_all(bind=engine)
+
+5. Created FastAPI app (demo4.py)
+
+Imported FastAPI, SQLAlchemy session, and Pydantic models.
+
+Defined Pydantic model Item (with orm_mode = True).
+
+Added DB dependency to get a session per request.
+
+6. Implemented CRUD API
+
+Create item in a bucket: POST /buckets/{bucket_name}/items/
+
+List items in a bucket: GET /buckets/{bucket_name}/items/
+
+Read a single item: GET /buckets/{bucket_name}/items/{item_id}
+
+List all buckets: GET /buckets/
+
+Optional improvements:
+
+Add id field in Pydantic model for responses.
+
+Add error handling for duplicate items.
+
+7. Ran FastAPI server using Uvicorn
+uvicorn demo4:app --reload
+
+
+Addressed previous port conflicts (Address already in use).
+
+Fixed check_same_thread error by updating database.py.
+
+Verified that server started correctly:
+
+INFO: Uvicorn running on http://127.0.0.1:8000
+
+8. Verified endpoints
+
+Visiting / gave 404 → Added simple root route or used bucket routes.
+
+Tested CRUD endpoints with a browser or Postman.
+
+Observed logs like 127.0.0.1:64297 - "GET / HTTP/1.1" 404 Not Found (normal if route not defined).

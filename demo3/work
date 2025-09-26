@@ -1,0 +1,26 @@
+1. SQLite database (items.db)
+
+This is just a file created in your project folder.
+It stores your data permanently (unlike Python dicts).
+
+2. SQLAlchemy ORM (Object Relational Mapper)
+
+Converts Python classes ↔ SQL tables.
+You define a class (ItemDB) → SQLAlchemy creates a corresponding items table in SQLite.
+
+3. FastAPI app
+
+Exposes HTTP endpoints.
+When you call /buckets/... endpoints, FastAPI uses SQLAlchemy to interact with the SQLite database.
+
+-------------------------------------------------------------------------------------
+
+demo3/
+│── demo3.py        # your FastAPI app
+│── database.py     # SQLAlchemy + SQLite setup
+│── items.db        # (auto-created SQLite DB file)
+
+
+-------------------------------------------------------------------------------------
+
+
